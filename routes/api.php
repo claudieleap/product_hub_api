@@ -5,4 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::get('/health', HealthController::class);
+
+    Route::prefix('roadmap')->group(function () {
+        require __DIR__.'/api/v1/roadmap.php';
+    });
 });
