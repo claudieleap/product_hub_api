@@ -1,0 +1,605 @@
+{
+  "items": [
+    {
+      "id": "rm-seed-cadastro-perfis",
+      "productId": "cadastro",
+      "priority": "media",
+      "title": "Perfis e Permissões",
+      "notes": "Permissões granulares além de ADMIN/USER para segregar financeiro, operacional e portal médico.",
+      "metrics": [
+        "rm-m-adocao-mau"
+      ],
+      "createdAt": "2026-06-30T12:00:04.000Z"
+    },
+    {
+      "id": "rm-seed-cadastro-multiunidades",
+      "productId": "cadastro",
+      "priority": "baixa",
+      "title": "Multiunidades",
+      "notes": "Grupos de clínicas gerenciando múltiplas unidades com visão consolidada.",
+      "metrics": [
+        "rm-m-adocao-mau",
+        "rm-m-neg-expand"
+      ],
+      "createdAt": "2026-06-30T12:00:05.000Z"
+    },
+    {
+      "id": "rm-seed-etapas-wizard",
+      "productId": "etapas-iniciais",
+      "priority": "alta",
+      "title": "Wizard de Implantação",
+      "notes": "Guia passo a passo da operação financeira além do setup cadastral — operadoras, importação e primeira conciliação — com sugestões automáticas conforme perfil da clínica e convênios credenciados.",
+      "metrics": [
+        "rm-m-adocao-onboarding",
+        "rm-m-adocao-1a-conciliacao",
+        "rm-m-adocao-mau",
+        "rm-m-conc-dashboard"
+      ],
+      "createdAt": "2026-06-30T12:00:08.000Z"
+    },
+    {
+      "id": "rm-seed-etapas-checklist",
+      "productId": "etapas-iniciais",
+      "priority": "alta",
+      "title": "Checklist de Configuração",
+      "notes": "Garante que faturamento, recebimento e conciliação estejam prontos antes da operação rodar.",
+      "metrics": [
+        "rm-m-adocao-onboarding",
+        "rm-m-adocao-1a-conciliacao"
+      ],
+      "createdAt": "2026-06-30T12:00:09.000Z"
+    },
+    {
+      "id": "rm-seed-etapas-progresso",
+      "productId": "etapas-iniciais",
+      "priority": "media",
+      "title": "Indicador de Progresso",
+      "notes": "Visibilidade em tempo real da implantação para CS e cliente.",
+      "metrics": [
+        "rm-m-adocao-onboarding",
+        "rm-m-adocao-1a-conciliacao"
+      ],
+      "createdAt": "2026-06-30T12:00:10.000Z"
+    },
+    {
+      "id": "rm-seed-etapas-self-onboarding",
+      "productId": "etapas-iniciais",
+      "priority": "alta",
+      "title": "Self Onboarding",
+      "notes": "Clínica conclui cadastro, configuração e primeira conciliação de forma autônoma — sem dependência do time de implantação ou CS.",
+      "metrics": [
+        "rm-m-adocao-onboarding",
+        "rm-m-adocao-1a-conciliacao",
+        "rm-m-adocao-mau",
+        "rm-m-neg-pmf"
+      ],
+      "createdAt": "2026-06-30T15:00:01.000Z"
+    },
+    {
+      "id": "rm-seed-etapas-tour",
+      "productId": "etapas-iniciais",
+      "priority": "media",
+      "title": "Tour Guiado",
+      "notes": "Onboarding interativo dos módulos financeiros para novos usuários.",
+      "metrics": [
+        "rm-m-adocao-onboarding",
+        "rm-m-neg-pmf"
+      ],
+      "createdAt": "2026-06-30T12:00:12.000Z"
+    },
+    {
+      "id": "rm-seed-faturamento-regras",
+      "productId": "faturamento",
+      "priority": "media",
+      "title": "Regras Automáticas de Validação",
+      "notes": "Validações pré-envio para reduzir glosas e retrabalho no BPO.",
+      "metrics": [
+        "rm-m-rec-sla",
+        "rm-m-glo-taxa",
+        "rm-m-conc-match"
+      ],
+      "createdAt": "2026-06-30T12:00:13.000Z"
+    },
+    {
+      "id": "rm-seed-faturamento-alertas",
+      "productId": "faturamento",
+      "priority": "media",
+      "title": "Alertas de Faturamento",
+      "notes": "Notificações sobre lotes incompletos, pendências e inconsistências antes do envio à operadora.",
+      "metrics": [
+        "rm-m-rec-sla",
+        "rm-m-conc-gap",
+        "rm-m-glo-taxa"
+      ],
+      "createdAt": "2026-06-30T12:00:14.000Z"
+    },
+    {
+      "id": "rm-seed-faturamento-benchmark",
+      "productId": "faturamento",
+      "priority": "baixa",
+      "title": "Benchmark de Faturamento",
+      "notes": "Comparativo de indicadores de faturamento com referências do segmento.",
+      "metrics": [
+        "rm-m-glo-taxa",
+        "rm-m-neg-margem-bpo"
+      ],
+      "createdAt": "2026-06-30T12:00:15.000Z"
+    },
+    {
+      "id": "rm-seed-recebimento-protocolos",
+      "productId": "recebimento",
+      "priority": "media",
+      "title": "Monitoramento de Protocolos",
+      "notes": "Rastreamento do ciclo completo dos retornos por protocolo da operadora.",
+      "metrics": [
+        "rm-m-rec-imports",
+        "rm-m-rec-operadoras",
+        "rm-m-rec-sla"
+      ],
+      "createdAt": "2026-06-30T12:00:20.000Z"
+    },
+    {
+      "id": "rm-seed-recebimento-alertas",
+      "productId": "recebimento",
+      "priority": "alta",
+      "title": "Alertas de Atraso",
+      "notes": "Identifica pagamentos fora do prazo — impacto direto no DSO e na elegibilidade de antecipação.",
+      "metrics": [
+        "rm-m-neg-dso",
+        "rm-m-rec-sla",
+        "rm-m-conc-gap"
+      ],
+      "createdAt": "2026-06-30T12:00:21.000Z"
+    },
+    {
+      "id": "rm-seed-recebimento-previsao",
+      "productId": "recebimento",
+      "priority": "media",
+      "title": "Previsão de Recebimentos",
+      "notes": "Projeção de entradas futuras com base no histórico e calendário das operadoras.",
+      "metrics": [
+        "rm-m-neg-dso",
+        "rm-m-ant-volume",
+        "rm-m-ant-elegivel"
+      ],
+      "createdAt": "2026-06-30T12:00:22.000Z"
+    },
+    {
+      "id": "rm-seed-conciliacao-alertas",
+      "productId": "conciliacao",
+      "priority": "alta",
+      "title": "Alertas de Divergência",
+      "notes": "Notificações proativas quando faturado × pago diverge — reduz trabalho manual e Excel.",
+      "metrics": [
+        "rm-m-conc-gap",
+        "rm-m-conc-tempo",
+        "rm-m-conc-dashboard",
+        "rm-m-neg-dso"
+      ],
+      "createdAt": "2026-06-30T13:00:01.000Z"
+    },
+    {
+      "id": "rm-seed-conciliacao-insights",
+      "productId": "conciliacao",
+      "priority": "media",
+      "title": "Insights IA Proativos",
+      "notes": "Score de saúde financeira e recomendações sem o usuário precisar solicitar — hoje sob demanda.",
+      "metrics": [
+        "rm-m-conc-dashboard",
+        "rm-m-conc-tempo",
+        "rm-m-neg-pmf",
+        "rm-m-neg-grr"
+      ],
+      "createdAt": "2026-06-30T13:00:02.000Z"
+    },
+    {
+      "id": "rm-seed-conciliacao-relink",
+      "productId": "conciliacao",
+      "priority": "media",
+      "title": "Reprocessamento e Relink Automático",
+      "notes": "Reconciliar guias quando faturamento ou recebimento chegam em momentos diferentes.",
+      "metrics": [
+        "rm-m-conc-match",
+        "rm-m-conc-tempo",
+        "rm-m-conc-gap"
+      ],
+      "createdAt": "2026-06-30T13:00:03.000Z"
+    },
+    {
+      "id": "rm-seed-glosas-workflow",
+      "productId": "glosas",
+      "priority": "alta",
+      "title": "Workflow de Recurso de Glosa",
+      "notes": "Persistir status do recurso na API e acompanhar até acatamento — hoje UI sem backend completo.",
+      "metrics": [
+        "rm-m-glo-pendentes",
+        "rm-m-glo-recuperado",
+        "rm-m-glo-taxa",
+        "rm-m-neg-dso",
+        "rm-m-neg-margem-bpo"
+      ],
+      "createdAt": "2026-06-30T13:00:10.000Z"
+    },
+    {
+      "id": "rm-seed-glosas-alertas",
+      "productId": "glosas",
+      "priority": "alta",
+      "title": "Alertas de Glosas Paradas",
+      "notes": "Avisa quando glosas ficam sem ação — hoje há sinal stale_to_appeal, falta produto completo.",
+      "metrics": [
+        "rm-m-glo-pendentes",
+        "rm-m-glo-taxa",
+        "rm-m-glo-recuperado"
+      ],
+      "createdAt": "2026-06-30T13:00:11.000Z"
+    },
+    {
+      "id": "rm-seed-glosas-analitico",
+      "productId": "glosas",
+      "priority": "media",
+      "title": "Analítico por Motivo de Glosa",
+      "notes": "Ranking de códigos e motivos recorrentes para atacar a causa raiz no BPO.",
+      "metrics": [
+        "rm-m-glo-taxa",
+        "rm-m-glo-recuperado",
+        "rm-m-glo-pendentes"
+      ],
+      "createdAt": "2026-06-30T13:00:12.000Z"
+    },
+    {
+      "id": "rm-seed-glosas-meta",
+      "productId": "glosas",
+      "priority": "media",
+      "title": "Meta de Recuperação de Glosa",
+      "notes": "Acompanhar % de glosas recuperadas vs. baseline (~15,9%) — farol H3.",
+      "metrics": [
+        "rm-m-glo-recuperado",
+        "rm-m-glo-taxa",
+        "rm-m-neg-margem-bpo"
+      ],
+      "createdAt": "2026-06-30T13:00:13.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-simulacao",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Simulação de Antecipação",
+      "notes": "Protótipo UX pronto: hub clínica, seleção por guia, taxa 2,5% a.m. e valor líquido em tempo real — integrar cálculo à API.",
+      "metrics": [
+        "rm-m-ant-clinicas",
+        "rm-m-ant-profissionais",
+        "rm-m-ant-volume",
+        "rm-m-ant-elegivel"
+      ],
+      "createdAt": "2026-06-30T12:00:07.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-elegiveis",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Gestão de Recebíveis Elegíveis",
+      "notes": "Protótipo lista guias faturadas conciliadas (até 50% por guia, sem bloqueios) — conectar elegibilidade à conciliação real.",
+      "metrics": [
+        "rm-m-ant-elegivel",
+        "rm-m-ant-volume",
+        "rm-m-conc-match",
+        "rm-m-conc-gap"
+      ],
+      "createdAt": "2026-06-30T12:00:30.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-contratacao",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Contratação Digital — Clínica",
+      "notes": "Protótipo web: nova solicitação por guia, aceite de termos e protocolo ANT-YYYY-NNNN — integrar envio à API.",
+      "metrics": [
+        "rm-m-ant-clinicas",
+        "rm-m-ant-recorrencia",
+        "rm-m-ant-volume"
+      ],
+      "createdAt": "2026-06-30T12:00:31.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-whatsapp",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Confirmação via WhatsApp — Médico",
+      "notes": "Médico solicita e confirma com SIM/NÃO no WhatsApp (valor, taxa, líquido). Clínica acompanha no painel web — integrar AnticipationNotificationService.",
+      "metrics": [
+        "rm-m-ant-profissionais",
+        "rm-m-ant-recorrencia",
+        "rm-m-ant-volume"
+      ],
+      "createdAt": "2026-06-30T14:00:01.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-operacoes",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Gestão de Operações — Admin",
+      "notes": "Protótipo admin: análise, aprovação e rejeição de pedidos (clínica e médico), filtros por status e histórico — integrar à API.",
+      "metrics": [
+        "rm-m-ant-recorrencia",
+        "rm-m-ant-volume",
+        "rm-m-ant-clinicas",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T12:00:32.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-controle",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Controle de Antecipação",
+      "notes": "Protótipo UX: hub pós-aprovação para gestor financeiro — visão de obrigações abertas, médicos ativos e atalhos de configuração.",
+      "metrics": [
+        "rm-m-ant-recorrencia",
+        "rm-m-ant-clinicas",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T14:00:02.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-boletos",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Pagamentos e Boletos",
+      "notes": "Protótipo: obrigações clínica e repasse médico, emissão de boleto, vencimento e quitação — integrar gateway de cobrança.",
+      "metrics": [
+        "rm-m-ant-volume",
+        "rm-m-ant-recorrencia",
+        "rm-m-ant-clinicas"
+      ],
+      "createdAt": "2026-06-30T14:00:03.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-desconto-folha",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Desconto em Folha — Médicos",
+      "notes": "Protótipo: ledger por médico/guia, saldo em aberto, registro de desconto por competência e status ativo/parcial/quitado.",
+      "metrics": [
+        "rm-m-ant-profissionais",
+        "rm-m-ant-retencao",
+        "rm-m-ant-volume"
+      ],
+      "createdAt": "2026-06-30T14:00:04.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-configuracoes",
+      "productId": "antecipacao",
+      "priority": "media",
+      "title": "Configurações de Antecipação",
+      "notes": "Protótipo: % repasse médico, dias para repasse após vencimento clínica e dados bancários/PIX — persistir na API da clínica.",
+      "metrics": [
+        "rm-m-ant-profissionais",
+        "rm-m-ant-clinicas",
+        "rm-m-ant-elegivel"
+      ],
+      "createdAt": "2026-06-30T14:00:05.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-calendario",
+      "productId": "antecipacao",
+      "priority": "alta",
+      "title": "Calendário de Pagamento por Operadora",
+      "notes": "Protótipo admin: regras globais por convênio (dia fixo ou útil, corte de faturamento) — base para prev. pagamento e vencimentos.",
+      "metrics": [
+        "rm-m-ant-elegivel",
+        "rm-m-neg-dso",
+        "rm-m-ant-volume"
+      ],
+      "createdAt": "2026-06-30T14:00:06.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-limite",
+      "productId": "antecipacao",
+      "priority": "media",
+      "title": "Limite Pré-Aprovado",
+      "notes": "Crédito disponível visível com base no histórico financeiro da operação.",
+      "metrics": [
+        "rm-m-ant-elegivel",
+        "rm-m-ant-volume",
+        "rm-m-ant-clinicas",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T12:00:33.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-motor",
+      "productId": "antecipacao",
+      "priority": "media",
+      "title": "Motor de Elegibilidade",
+      "notes": "Regras de risco e perfil para concessão automática — protótipo usa regras fixas (taxa 2,5%, 50% guia, venc. +10 dias).",
+      "metrics": [
+        "rm-m-ant-elegivel",
+        "rm-m-ant-retencao",
+        "rm-m-ant-clinicas",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T12:00:34.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-marketplace",
+      "productId": "antecipacao",
+      "priority": "baixa",
+      "title": "Marketplace Financeiro",
+      "notes": "Múltiplas instituições financeiras competindo pela antecipação.",
+      "metrics": [
+        "rm-m-ant-volume",
+        "rm-m-ant-clinicas",
+        "rm-m-neg-nrr"
+      ],
+      "createdAt": "2026-06-30T12:00:35.000Z"
+    },
+    {
+      "id": "rm-seed-antecipacao-simulador-avancado",
+      "productId": "antecipacao",
+      "priority": "perfumaria",
+      "title": "Simulador Avançado",
+      "notes": "Cenários de fluxo de caixa com e sem antecipação.",
+      "metrics": [
+        "rm-m-ant-volume",
+        "rm-m-neg-dso",
+        "rm-m-ant-elegivel"
+      ],
+      "createdAt": "2026-06-30T12:00:36.000Z"
+    },
+    {
+      "id": "rm-seed-portal-dashboard",
+      "productId": "portal-medico",
+      "priority": "alta",
+      "title": "Dashboard Financeiro do Médico",
+      "notes": "Visão consolidada de produção, repasses e antecipações — API existe, falta portal dedicado.",
+      "metrics": [
+        "rm-m-portal-ativos",
+        "rm-m-portal-extrato",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T12:00:23.000Z"
+    },
+    {
+      "id": "rm-seed-portal-extrato",
+      "productId": "portal-medico",
+      "priority": "alta",
+      "title": "Extrato de Recebimentos",
+      "notes": "Transparência sobre pagamentos realizados e futuros para o profissional.",
+      "metrics": [
+        "rm-m-portal-extrato",
+        "rm-m-portal-ativos",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T12:00:24.000Z"
+    },
+    {
+      "id": "rm-seed-portal-producao",
+      "productId": "portal-medico",
+      "priority": "alta",
+      "title": "Produção Médica",
+      "notes": "Indicadores de atendimentos faturados e recebidos por profissional.",
+      "metrics": [
+        "rm-m-portal-ativos",
+        "rm-m-ant-profissionais",
+        "rm-m-neg-dso"
+      ],
+      "createdAt": "2026-06-30T12:00:25.000Z"
+    },
+    {
+      "id": "rm-seed-portal-historico",
+      "productId": "portal-medico",
+      "priority": "media",
+      "title": "Histórico Financeiro",
+      "notes": "Evolução de resultados ao longo do tempo para o médico.",
+      "metrics": [
+        "rm-m-portal-extrato",
+        "rm-m-portal-ativos",
+        "rm-m-neg-grr"
+      ],
+      "createdAt": "2026-06-30T12:00:26.000Z"
+    },
+    {
+      "id": "rm-seed-portal-indicadores",
+      "productId": "portal-medico",
+      "priority": "media",
+      "title": "Indicadores Individuais",
+      "notes": "Métricas de desempenho financeiro por profissional.",
+      "metrics": [
+        "rm-m-portal-ativos",
+        "rm-m-ant-profissionais",
+        "rm-m-ant-volume"
+      ],
+      "createdAt": "2026-06-30T12:00:27.000Z"
+    },
+    {
+      "id": "rm-seed-portal-metas",
+      "productId": "portal-medico",
+      "priority": "baixa",
+      "title": "Metas Financeiras",
+      "notes": "Objetivos financeiros pessoais para o médico acompanhar.",
+      "metrics": [
+        "rm-m-portal-ativos",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T12:00:28.000Z"
+    },
+    {
+      "id": "rm-seed-portal-mobile",
+      "productId": "portal-medico",
+      "priority": "perfumaria",
+      "title": "Aplicativo Mobile",
+      "notes": "Acesso simplificado ao portal via dispositivos móveis.",
+      "metrics": [
+        "rm-m-portal-ativos",
+        "rm-m-portal-extrato",
+        "rm-m-ant-profissionais"
+      ],
+      "createdAt": "2026-06-30T12:00:29.000Z"
+    },
+    {
+      "id": "rm-seed-ia-livia",
+      "productId": "ia-financeira",
+      "priority": "alta",
+      "title": "Assistente Livia — Expansão",
+      "notes": "Ampliar escopo da Livia para glosas, antecipação e ações operacionais além da conciliação.",
+      "metrics": [
+        "rm-m-conc-dashboard",
+        "rm-m-neg-pmf",
+        "rm-m-adocao-mau"
+      ],
+      "createdAt": "2026-06-30T13:00:20.000Z"
+    },
+    {
+      "id": "rm-seed-ia-recomendacoes",
+      "productId": "ia-financeira",
+      "priority": "alta",
+      "title": "Recomendações de Ação",
+      "notes": "Sugestões práticas a partir dos dados: recursar glosa, antecipar, cobrar operadora.",
+      "metrics": [
+        "rm-m-conc-gap",
+        "rm-m-glo-taxa",
+        "rm-m-ant-elegivel",
+        "rm-m-neg-dso"
+      ],
+      "createdAt": "2026-06-30T13:00:21.000Z"
+    },
+    {
+      "id": "rm-seed-ia-anomalias",
+      "productId": "ia-financeira",
+      "priority": "media",
+      "title": "Detecção de Anomalias",
+      "notes": "Identificar padrões atípicos em pagamentos, glosas e divergências.",
+      "metrics": [
+        "rm-m-conc-gap",
+        "rm-m-glo-taxa",
+        "rm-m-rec-sla"
+      ],
+      "createdAt": "2026-06-30T13:00:22.000Z"
+    },
+    {
+      "id": "rm-seed-ia-previsao",
+      "productId": "ia-financeira",
+      "priority": "media",
+      "title": "Previsão de Caixa com IA",
+      "notes": "Projeção inteligente de entradas considerando histórico, sazonalidade e operadoras.",
+      "metrics": [
+        "rm-m-neg-dso",
+        "rm-m-ant-volume",
+        "rm-m-ant-elegivel"
+      ],
+      "createdAt": "2026-06-30T13:00:23.000Z"
+    }
+  ],
+  "customProducts": [],
+  "deletedSeedIds": [
+    "rm-seed-cadastro-clinicas",
+    "rm-seed-cadastro-medicos",
+    "rm-seed-cadastro-operadoras",
+    "rm-seed-cadastro-usuarios",
+    "rm-seed-cadastro-auditoria",
+    "rm-seed-recebimento-xml",
+    "rm-seed-recebimento-csv",
+    "rm-seed-recebimento-pdf-ia",
+    "rm-seed-recebimento-gestao"
+  ]
+}
