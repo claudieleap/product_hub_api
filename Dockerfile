@@ -1,6 +1,6 @@
 # Product Hub API — Laravel 12 (Railway)
 # Build determinístico, sem etapa de npm/vite (a API não serve assets compilados).
-FROM php:8.3-cli-alpine
+FROM php:8.4-cli-alpine
 
 # Extensões PHP exigidas pelo Laravel 12 + driver sqlite
 RUN apk add --no-cache \
