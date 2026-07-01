@@ -6,6 +6,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\RoadmapCustomProduct;
 use App\Models\RoadmapDeletedSeed;
 use App\Models\RoadmapItem;
+use App\Support\RoadmapType;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -15,65 +16,75 @@ class RoadmapService
 
     private const DEV_STATUSES = ['a_fazer', 'em_andamento', 'concluido'];
 
-    public function getState(): array
+    public function getState(string $type): array
     {
+        $type = RoadmapType::resolve($type);
+
         return [
+            'roadmapType' => $type,
             'items' => RoadmapItem::query()
+                ->where('roadmap_type', $type)
                 ->orderBy('item_created_at')
                 ->get()
                 ->map(fn (RoadmapItem $item) => $this->itemToArray($item))
                 ->values()
                 ->all(),
             'customProducts' => RoadmapCustomProduct::query()
+                ->where('roadmap_type', $type)
                 ->orderBy('product_created_at')
                 ->get()
                 ->map(fn (RoadmapCustomProduct $product) => $this->productToArray($product))
                 ->values()
                 ->all(),
             'deletedSeedIds' => RoadmapDeletedSeed::query()
+                ->where('roadmap_type', $type)
                 ->pluck('seed_id')
                 ->values()
                 ->all(),
         ];
     }
 
-    public function importState(array $payload): array
+    public function importState(string $type, array $payload): array
     {
-        if (RoadmapItem::query()->exists()
-            || RoadmapCustomProduct::query()->exists()
-            || RoadmapDeletedSeed::query()->exists()) {
+        $type = RoadmapType::resolve($type);
+
+        if (RoadmapItem::query()->where('roadmap_type', $type)->exists()
+            || RoadmapCustomProduct::query()->where('roadmap_type', $type)->exists()
+            || RoadmapDeletedSeed::query()->where('roadmap_type', $type)->exists()) {
             throw new InvalidArgumentException('O roadmap já possui dados. Importação bloqueada para evitar sobrescrita.');
         }
 
-        DB::transaction(function () use ($payload) {
+        DB::transaction(function () use ($type, $payload) {
             foreach ($payload['items'] ?? [] as $item) {
-                $this->persistItem($this->normalizeItemInput($item));
+                $this->persistItem($type, $this->normalizeItemInput($item));
             }
 
             foreach ($payload['customProducts'] ?? [] as $product) {
-                $this->persistProduct($this->normalizeProductInput($product));
+                $this->persistProduct($type, $this->normalizeProductInput($product));
             }
 
             foreach ($payload['deletedSeedIds'] ?? [] as $seedId) {
-                $this->trackDeletedSeed((string) $seedId, false);
+                $this->trackDeletedSeed($type, (string) $seedId, false);
             }
         });
 
-        return $this->getState();
+        return $this->getState($type);
     }
 
     /**
      * Mescla estado enviado pelo cliente (upsert por id). Não apaga itens ausentes no payload.
      */
-    public function syncState(array $payload): array
+    public function syncState(string $type, array $payload): array
     {
-        DB::transaction(function () use ($payload) {
+        $type = RoadmapType::resolve($type);
+
+        DB::transaction(function () use ($type, $payload) {
             foreach ($payload['items'] ?? [] as $item) {
-                $this->upsertItem($item);
+                $this->upsertItem($type, $item);
             }
 
             foreach ($payload['customProducts'] ?? [] as $product) {
-                $this->upsertCustomProduct($product);
+                $this->upsertCustomProduct($type, $product);
             }
 
             foreach ($payload['deletedSeedIds'] ?? [] as $seedId) {
@@ -82,34 +93,39 @@ class RoadmapService
                     continue;
                 }
 
-                $this->trackDeletedSeed($seedId, true);
-                RoadmapItem::query()->whereKey($seedId)->delete();
+                $this->trackDeletedSeed($type, $seedId, true);
+                RoadmapItem::query()
+                    ->where('roadmap_type', $type)
+                    ->where('id', $seedId)
+                    ->delete();
             }
         });
 
-        return $this->getState();
+        return $this->getState($type);
     }
 
-    public function createItem(array $input): array
+    public function createItem(string $type, array $input): array
     {
+        $type = RoadmapType::resolve($type);
         $data = $this->normalizeItemInput($input);
 
         if ($data['title'] === '') {
             throw new InvalidArgumentException('O título do item é obrigatório.');
         }
 
-        if (RoadmapItem::query()->whereKey($data['id'])->exists()) {
+        if ($this->findItem($type, $data['id'])) {
             throw new InvalidArgumentException('Já existe um item com este identificador.');
         }
 
-        $item = $this->persistItem($data);
+        $item = $this->persistItem($type, $data);
 
         return $this->itemToArray($item);
     }
 
-    public function updateItem(string $id, array $input): array
+    public function updateItem(string $type, string $id, array $input): array
     {
-        $item = RoadmapItem::query()->find($id);
+        $type = RoadmapType::resolve($type);
+        $item = $this->findItem($type, $id);
 
         if (!$item) {
             throw new NotFoundException('Item do roadmap', $id);
@@ -139,38 +155,42 @@ class RoadmapService
         return $this->itemToArray($item->fresh());
     }
 
-    public function deleteItem(string $id): void
+    public function deleteItem(string $type, string $id): void
     {
-        $item = RoadmapItem::query()->find($id);
+        $type = RoadmapType::resolve($type);
+        $item = $this->findItem($type, $id);
 
         if (!$item) {
             throw new NotFoundException('Item do roadmap', $id);
         }
 
         if (str_starts_with($id, 'rm-seed-')) {
-            $this->trackDeletedSeed($id, true);
+            $this->trackDeletedSeed($type, $id, true);
         }
 
         $item->delete();
     }
 
-    public function deleteItemsByProduct(string $productId): int
+    public function deleteItemsByProduct(string $type, string $productId): int
     {
+        $type = RoadmapType::resolve($type);
         $items = RoadmapItem::query()
+            ->where('roadmap_type', $type)
             ->where('product_id', $productId)
             ->get();
 
         $count = $items->count();
 
         foreach ($items as $item) {
-            $this->deleteItem($item->id);
+            $this->deleteItem($type, $item->id);
         }
 
         return $count;
     }
 
-    public function createCustomProduct(array $input): array
+    public function createCustomProduct(string $type, array $input): array
     {
+        $type = RoadmapType::resolve($type);
         $data = $this->normalizeProductInput($input);
 
         if ($data['id'] === '') {
@@ -181,18 +201,19 @@ class RoadmapService
             throw new InvalidArgumentException('O título do módulo é obrigatório.');
         }
 
-        if (RoadmapCustomProduct::query()->whereKey($data['id'])->exists()) {
+        if ($this->findProduct($type, $data['id'])) {
             throw new InvalidArgumentException('Já existe um módulo com este identificador.');
         }
 
-        $product = $this->persistProduct($data);
+        $product = $this->persistProduct($type, $data);
 
         return $this->productToArray($product);
     }
 
-    public function updateCustomProduct(string $id, array $input): array
+    public function updateCustomProduct(string $type, string $id, array $input): array
     {
-        $product = RoadmapCustomProduct::query()->find($id);
+        $type = RoadmapType::resolve($type);
+        $product = $this->findProduct($type, $id);
 
         if (!$product) {
             throw new NotFoundException('Módulo do roadmap', $id);
@@ -200,7 +221,7 @@ class RoadmapService
 
         $current = $this->productToArray($product);
         $merged = array_merge($current, array_intersect_key($input, array_flip([
-            'title', 'description', 'icon', 'accent',
+            'title', 'description', 'icon', 'accent', 'isHidden',
         ])));
 
         $data = $this->normalizeProductInput(array_merge($merged, ['id' => $id]));
@@ -214,32 +235,50 @@ class RoadmapService
             'description' => $data['description'],
             'icon' => $data['icon'],
             'accent' => $data['accent'],
+            'is_hidden' => $data['is_hidden'],
         ]);
         $product->save();
 
         return $this->productToArray($product->fresh());
     }
 
-    public function deleteCustomProduct(string $id): void
+    public function deleteCustomProduct(string $type, string $id): void
     {
-        $product = RoadmapCustomProduct::query()->find($id);
+        $type = RoadmapType::resolve($type);
+        $product = $this->findProduct($type, $id);
 
         if (!$product) {
             throw new NotFoundException('Módulo do roadmap', $id);
         }
 
-        $this->deleteItemsByProduct($id);
+        $this->deleteItemsByProduct($type, $id);
         $product->delete();
     }
 
-    private function upsertItem(array $input): void
+    private function findItem(string $type, string $id): ?RoadmapItem
+    {
+        return RoadmapItem::query()
+            ->where('roadmap_type', $type)
+            ->where('id', $id)
+            ->first();
+    }
+
+    private function findProduct(string $type, string $id): ?RoadmapCustomProduct
+    {
+        return RoadmapCustomProduct::query()
+            ->where('roadmap_type', $type)
+            ->where('id', $id)
+            ->first();
+    }
+
+    private function upsertItem(string $type, array $input): void
     {
         $data = $this->normalizeItemInput($input);
         if ($data['title'] === '' || $data['product_id'] === '') {
             return;
         }
 
-        $item = RoadmapItem::query()->find($data['id']);
+        $item = $this->findItem($type, $data['id']);
         if ($item) {
             $item->fill([
                 'product_id' => $data['product_id'],
@@ -254,35 +293,37 @@ class RoadmapService
             return;
         }
 
-        $this->persistItem($data);
+        $this->persistItem($type, $data);
     }
 
-    private function upsertCustomProduct(array $input): void
+    private function upsertCustomProduct(string $type, array $input): void
     {
         $data = $this->normalizeProductInput($input);
         if ($data['id'] === '' || $data['title'] === '') {
             return;
         }
 
-        $product = RoadmapCustomProduct::query()->find($data['id']);
+        $product = $this->findProduct($type, $data['id']);
         if ($product) {
             $product->fill([
                 'title' => $data['title'],
                 'description' => $data['description'],
                 'icon' => $data['icon'],
                 'accent' => $data['accent'],
+                'is_hidden' => $data['is_hidden'],
             ]);
             $product->save();
 
             return;
         }
 
-        $this->persistProduct($data);
+        $this->persistProduct($type, $data);
     }
 
-    private function persistItem(array $data): RoadmapItem
+    private function persistItem(string $type, array $data): RoadmapItem
     {
         $item = new RoadmapItem([
+            'roadmap_type' => $type,
             'id' => $data['id'],
             'product_id' => $data['product_id'],
             'priority' => $data['priority'],
@@ -297,14 +338,16 @@ class RoadmapService
         return $item;
     }
 
-    private function persistProduct(array $data): RoadmapCustomProduct
+    private function persistProduct(string $type, array $data): RoadmapCustomProduct
     {
         $product = new RoadmapCustomProduct([
+            'roadmap_type' => $type,
             'id' => $data['id'],
             'title' => $data['title'],
             'description' => $data['description'],
             'icon' => $data['icon'],
             'accent' => $data['accent'],
+            'is_hidden' => $data['is_hidden'],
             'product_created_at' => $data['product_created_at'],
         ]);
         $product->save();
@@ -312,19 +355,24 @@ class RoadmapService
         return $product;
     }
 
-    private function trackDeletedSeed(string $seedId, bool $ignoreDuplicates): void
+    private function trackDeletedSeed(string $type, string $seedId, bool $ignoreDuplicates): void
     {
         if ($seedId === '') {
             return;
         }
 
-        if ($ignoreDuplicates && RoadmapDeletedSeed::query()->whereKey($seedId)->exists()) {
+        $exists = RoadmapDeletedSeed::query()
+            ->where('roadmap_type', $type)
+            ->where('seed_id', $seedId)
+            ->exists();
+
+        if ($ignoreDuplicates && $exists) {
             return;
         }
 
         RoadmapDeletedSeed::query()->updateOrCreate(
-            ['seed_id' => $seedId],
-            ['seed_id' => $seedId],
+            ['roadmap_type' => $type, 'seed_id' => $seedId],
+            ['roadmap_type' => $type, 'seed_id' => $seedId],
         );
     }
 
@@ -372,9 +420,10 @@ class RoadmapService
         return [
             'id' => (string) ($input['id'] ?? ''),
             'title' => trim((string) ($input['title'] ?? '')),
-            'description' => trim((string) ($input['description'] ?? 'Módulo cadastrado no roadmap de produto.')),
+            'description' => trim((string) ($input['description'] ?? 'Módulo cadastrado no roadmap.')),
             'icon' => (string) ($input['icon'] ?? 'pi pi-box'),
             'accent' => (string) ($input['accent'] ?? '#1e4fe0'),
+            'is_hidden' => (bool) ($input['isHidden'] ?? $input['is_hidden'] ?? false),
             'product_created_at' => $createdAt ? now()->parse($createdAt) : now(),
         ];
     }
@@ -402,6 +451,7 @@ class RoadmapService
             'description' => $product->description ?? '',
             'icon' => $product->icon ?? 'pi pi-box',
             'accent' => $product->accent ?? '#1e4fe0',
+            'isHidden' => (bool) $product->is_hidden,
             'custom' => true,
             'createdAt' => optional($product->product_created_at)->toIso8601String()
                 ?? optional($product->created_at)->toIso8601String(),

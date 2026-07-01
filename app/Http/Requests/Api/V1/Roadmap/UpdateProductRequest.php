@@ -11,6 +11,7 @@ class UpdateProductRequest extends RoadmapRequest
             'description' => 'nullable|string',
             'icon' => 'nullable|string|max:80',
             'accent' => 'nullable|string|max:20',
+            'isHidden' => 'nullable|boolean',
         ];
     }
 }

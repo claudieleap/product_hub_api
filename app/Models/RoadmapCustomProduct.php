@@ -13,15 +13,18 @@ class RoadmapCustomProduct extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'roadmap_type',
         'id',
         'title',
         'description',
         'icon',
         'accent',
+        'is_hidden',
         'product_created_at',
     ];
 
     protected $casts = [
         'product_created_at' => 'datetime',
+        'is_hidden' => 'boolean',
     ];
 }

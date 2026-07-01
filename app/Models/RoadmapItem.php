@@ -13,6 +13,7 @@ class RoadmapItem extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'roadmap_type',
         'id',
         'product_id',
         'priority',
