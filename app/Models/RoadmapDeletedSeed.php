@@ -10,11 +10,8 @@ class RoadmapDeletedSeed extends Model
 
     public $incrementing = false;
 
-    protected $keyType = 'string';
-
-    protected $primaryKey = 'seed_id';
-
     protected $fillable = [
+        'roadmap_type',
         'seed_id',
     ];
 }

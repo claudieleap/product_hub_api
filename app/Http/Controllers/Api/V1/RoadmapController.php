@@ -22,84 +22,84 @@ class RoadmapController extends Controller
         private readonly RoadmapService $roadmapService,
     ) {}
 
-    public function state(): JsonResponse
+    public function state(string $type = 'saas'): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::success(
-            $this->roadmapService->getState(),
+            $this->roadmapService->getState($type),
             'Roadmap carregado com sucesso',
         ));
     }
 
-    public function import(ImportStateRequest $request): JsonResponse
+    public function import(ImportStateRequest $request, string $type = 'saas'): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::success(
-            $this->roadmapService->importState($request->validated()),
+            $this->roadmapService->importState($type, $request->validated()),
             'Roadmap importado com sucesso',
         ));
     }
 
-    public function sync(SyncStateRequest $request): JsonResponse
+    public function sync(SyncStateRequest $request, string $type = 'saas'): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::success(
-            $this->roadmapService->syncState($request->validated()),
+            $this->roadmapService->syncState($type, $request->validated()),
             'Roadmap sincronizado com sucesso',
         ));
     }
 
-    public function storeItem(StoreItemRequest $request): JsonResponse
+    public function storeItem(StoreItemRequest $request, string $type = 'saas'): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::created(
-            $this->roadmapService->createItem($request->validated()),
+            $this->roadmapService->createItem($type, $request->validated()),
             'Item criado com sucesso',
         ));
     }
 
-    public function updateItem(UpdateItemRequest $request, string $id): JsonResponse
+    public function updateItem(UpdateItemRequest $request, string $type = 'saas', string $id = ''): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::success(
-            $this->roadmapService->updateItem($id, $request->validated()),
+            $this->roadmapService->updateItem($type, $id, $request->validated()),
             'Item atualizado com sucesso',
         ));
     }
 
-    public function destroyItem(string $id): JsonResponse
+    public function destroyItem(string $type = 'saas', string $id = ''): JsonResponse
     {
-        return $this->handle(function () use ($id) {
-            $this->roadmapService->deleteItem($id);
+        return $this->handle(function () use ($type, $id) {
+            $this->roadmapService->deleteItem($type, $id);
 
             return ApiResponse::success(null, 'Item excluído com sucesso');
         });
     }
 
-    public function destroyItemsByProduct(string $productId): JsonResponse
+    public function destroyItemsByProduct(string $type = 'saas', string $productId = ''): JsonResponse
     {
-        return $this->handle(function () use ($productId) {
-            $count = $this->roadmapService->deleteItemsByProduct($productId);
+        return $this->handle(function () use ($type, $productId) {
+            $count = $this->roadmapService->deleteItemsByProduct($type, $productId);
 
             return ApiResponse::success(['deleted' => $count], 'Itens excluídos com sucesso');
         });
     }
 
-    public function storeProduct(StoreProductRequest $request): JsonResponse
+    public function storeProduct(StoreProductRequest $request, string $type = 'saas'): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::created(
-            $this->roadmapService->createCustomProduct($request->validated()),
+            $this->roadmapService->createCustomProduct($type, $request->validated()),
             'Módulo criado com sucesso',
         ));
     }
 
-    public function updateProduct(UpdateProductRequest $request, string $id): JsonResponse
+    public function updateProduct(UpdateProductRequest $request, string $type = 'saas', string $id = ''): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::success(
-            $this->roadmapService->updateCustomProduct($id, $request->validated()),
+            $this->roadmapService->updateCustomProduct($type, $id, $request->validated()),
             'Módulo atualizado com sucesso',
         ));
     }
 
-    public function destroyProduct(string $id): JsonResponse
+    public function destroyProduct(string $type = 'saas', string $id = ''): JsonResponse
     {
-        return $this->handle(function () use ($id) {
-            $this->roadmapService->deleteCustomProduct($id);
+        return $this->handle(function () use ($type, $id) {
+            $this->roadmapService->deleteCustomProduct($type, $id);
 
             return ApiResponse::success(null, 'Módulo excluído com sucesso');
         });
