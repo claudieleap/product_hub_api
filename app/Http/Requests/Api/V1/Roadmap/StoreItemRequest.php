@@ -9,7 +9,8 @@ class StoreItemRequest extends RoadmapRequest
         return [
             'id' => 'sometimes|string|max:120',
             'productId' => 'required|string|max:80',
-            'priority' => 'required|in:alta,media,baixa,perfumaria',
+            'priority' => 'required|in:alta,media,baixa,perfumaria,backlog',
+            'backlogPriority' => 'nullable|in:alta,media,baixa,perfumaria',
             'title' => 'required|string|max:500',
             'notes' => 'nullable|string',
             'metrics' => 'nullable|array',

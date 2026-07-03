@@ -80,6 +80,14 @@ class RoadmapController extends Controller
         });
     }
 
+    public function finalizeDelivered(string $type = 'saas'): JsonResponse
+    {
+        return $this->handle(fn () => ApiResponse::success(
+            $this->roadmapService->finalizeDelivered($type),
+            'Entregas finalizadas com sucesso',
+        ));
+    }
+
     public function storeProduct(StoreProductRequest $request, string $type = 'saas'): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::created(

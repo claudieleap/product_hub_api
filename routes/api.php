@@ -9,4 +9,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('roadmap')->group(function () {
         require __DIR__.'/api/v1/roadmap.php';
     });
+
+    Route::prefix('metrics')->group(function () {
+        require __DIR__.'/api/v1/metrics.php';
+    });
 });

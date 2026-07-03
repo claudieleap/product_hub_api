@@ -17,15 +17,18 @@ class RoadmapItem extends Model
         'id',
         'product_id',
         'priority',
+        'backlog_priority',
         'title',
         'notes',
         'metrics',
         'dev_status',
+        'delivered_at',
         'item_created_at',
     ];
 
     protected $casts = [
         'metrics' => 'array',
         'item_created_at' => 'datetime',
+        'delivered_at' => 'datetime',
     ];
 }

@@ -6,9 +6,13 @@ cd /app
 : "${PORT:=8080}"
 : "${DB_CONNECTION:=sqlite}"
 
-# arquivo do sqlite só faz sentido no fallback local/efêmero
+# Persistência: monte um volume Railway em /app/database (ver README).
+# Sem volume, os dados são apagados a cada redeploy.
 if [ "$DB_CONNECTION" = "sqlite" ]; then
-    touch "${DB_DATABASE:-/app/database/database.sqlite}"
+    DB_DIR="${RAILWAY_VOLUME_MOUNT_PATH:-/app/database}"
+    mkdir -p "$DB_DIR"
+    export DB_DATABASE="${DB_DATABASE:-$DB_DIR/database.sqlite}"
+    touch "$DB_DATABASE"
 fi
 
 # se APP_KEY não veio por env var, gera uma (defina APP_KEY no Railway p/ estabilidade)

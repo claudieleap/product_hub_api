@@ -53,6 +53,40 @@ node scripts/push-roadmap.mjs
 
 Para publicar edições feitas no navegador (localStorage), use `product_hub_app/public/roadmap-sync.html`.
 
+## Deploy no Railway
+
+A API usa SQLite em `/app/database/database.sqlite`. **Sem volume persistente, o banco é apagado a cada redeploy.**
+
+### 1. Volume persistente (obrigatório em produção)
+
+No [Railway Dashboard](https://railway.com):
+
+1. Abra o serviço da API → **Volumes** → **Add Volume**
+2. **Mount path:** `/app/database`
+3. Redeploy o serviço
+
+Via CLI (após `railway login` e `railway link`):
+
+```bash
+railway volume add --mount-path /app/database
+```
+
+O entrypoint detecta `RAILWAY_VOLUME_MOUNT_PATH` e grava o SQLite no volume.
+
+### 2. Variáveis de ambiente
+
+| Variável | Valor |
+|----------|-------|
+| `APP_KEY` | Chave fixa (gere com `php artisan key:generate --show` localmente) |
+| `APP_ENV` | `production` |
+| `FRONTEND_URL` | `https://product-hub-app-six.vercel.app` |
+
+### 3. Importar roadmap para produção
+
+```bash
+node scripts/push-roadmap.mjs database/roadmap-state.json https://producthubapi-production.up.railway.app/api/v1 saas
+```
+
 ## Branch padrão
 
 `staging` — alinhado ao workflow Aleevia.

@@ -14,6 +14,8 @@ $roadmapRoutes = function (string $type = 'saas') {
     Route::delete('/items/{id}', [RoadmapController::class, 'destroyItem'])->defaults('type', $type);
     Route::delete('/products/{productId}/items', [RoadmapController::class, 'destroyItemsByProduct'])->defaults('type', $type);
 
+    Route::post('/deliveries/finalize', [RoadmapController::class, 'finalizeDelivered'])->defaults('type', $type);
+
     Route::post('/products', [RoadmapController::class, 'storeProduct'])->defaults('type', $type);
     Route::put('/products/{id}', [RoadmapController::class, 'updateProduct'])->defaults('type', $type);
     Route::patch('/products/{id}', [RoadmapController::class, 'updateProduct'])->defaults('type', $type);
