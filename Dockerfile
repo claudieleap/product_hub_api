@@ -2,10 +2,10 @@
 # Build determinístico, sem etapa de npm/vite (a API não serve assets compilados).
 FROM php:8.4-cli-alpine
 
-# Extensões PHP exigidas pelo Laravel 12 + driver sqlite
+# Extensões PHP exigidas pelo Laravel 12 + drivers sqlite (local/testes) e pgsql (Railway)
 RUN apk add --no-cache \
-        git unzip libzip-dev icu-dev oniguruma-dev sqlite sqlite-dev \
-    && docker-php-ext-install pdo pdo_sqlite mbstring zip bcmath pcntl intl
+        git unzip libzip-dev icu-dev oniguruma-dev sqlite sqlite-dev postgresql-dev \
+    && docker-php-ext-install pdo pdo_sqlite pdo_pgsql mbstring zip bcmath pcntl intl
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -20,10 +20,10 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
         storage/logs database \
     && chmod -R 775 storage bootstrap/cache
 
+# DB definido por variáveis do Railway (DB_CONNECTION=pgsql + DB_URL).
+# Sem elas, o config cai no default sqlite (efêmero) — só p/ bootstrap/health.
 ENV APP_ENV=production \
-    APP_DEBUG=false \
-    DB_CONNECTION=sqlite \
-    DB_DATABASE=/app/database/database.sqlite
+    APP_DEBUG=false
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
