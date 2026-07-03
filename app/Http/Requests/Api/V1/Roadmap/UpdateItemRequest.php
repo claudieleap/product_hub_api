@@ -8,12 +8,14 @@ class UpdateItemRequest extends RoadmapRequest
     {
         return [
             'productId' => 'sometimes|string|max:80',
-            'priority' => 'sometimes|in:alta,media,baixa,perfumaria',
+            'priority' => 'sometimes|in:alta,media,baixa,perfumaria,backlog',
+            'backlogPriority' => 'nullable|in:alta,media,baixa,perfumaria',
             'title' => 'sometimes|string|max:500',
             'notes' => 'nullable|string',
             'metrics' => 'nullable|array',
             'metrics.*' => 'string|max:80',
             'devStatus' => 'nullable|in:a_fazer,em_andamento,concluido',
+            'deliveredAt' => 'nullable|date',
         ];
     }
 }

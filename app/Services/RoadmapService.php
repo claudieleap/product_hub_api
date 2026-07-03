@@ -8,11 +8,14 @@ use App\Models\RoadmapDeletedSeed;
 use App\Models\RoadmapItem;
 use App\Support\RoadmapType;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
 
 class RoadmapService
 {
-    private const PRIORITIES = ['alta', 'media', 'baixa', 'perfumaria'];
+    private const PRIORITIES = ['alta', 'media', 'baixa', 'perfumaria', 'backlog'];
+
+    private const MATRIX_PRIORITIES = ['alta', 'media', 'baixa', 'perfumaria'];
 
     private const DEV_STATUSES = ['a_fazer', 'em_andamento', 'concluido'];
 
@@ -133,7 +136,7 @@ class RoadmapService
 
         $current = $this->itemToArray($item);
         $merged = array_merge($current, array_intersect_key($input, array_flip([
-            'productId', 'priority', 'title', 'notes', 'metrics', 'devStatus',
+            'productId', 'priority', 'backlogPriority', 'title', 'notes', 'metrics', 'devStatus', 'deliveredAt',
         ])));
 
         $data = $this->normalizeItemInput(array_merge($merged, ['id' => $id]));
@@ -142,17 +145,47 @@ class RoadmapService
             throw new InvalidArgumentException('O título do item é obrigatório.');
         }
 
-        $item->fill([
-            'product_id' => $data['product_id'],
-            'priority' => $data['priority'],
-            'title' => $data['title'],
-            'notes' => $data['notes'],
-            'metrics' => $data['metrics'],
-            'dev_status' => $data['dev_status'],
-        ]);
+        $item->fill($this->itemAttributesFromData(
+            $data,
+            array_key_exists('deliveredAt', $input) || array_key_exists('delivered_at', $input)
+        ));
         $item->save();
 
         return $this->itemToArray($item->fresh());
+    }
+
+    /**
+     * Marca como entregues todos os itens em "Concluído" no board de desenvolvimento.
+     */
+    public function finalizeDelivered(string $type): array
+    {
+        if (!$this->itemsHaveDeliveredAt()) {
+            throw new InvalidArgumentException('A base de dados ainda não foi atualizada para suportar entregas.');
+        }
+
+        $type = RoadmapType::resolve($type);
+        $now = now();
+
+        $items = RoadmapItem::query()
+            ->where('roadmap_type', $type)
+            ->where('dev_status', 'concluido')
+            ->whereNull('delivered_at')
+            ->get();
+
+        $delivered = [];
+
+        foreach ($items as $item) {
+            $item->delivered_at = $now;
+            $item->dev_status = null;
+            $item->save();
+            $delivered[] = $this->itemToArray($item->fresh());
+        }
+
+        return [
+            'count' => count($delivered),
+            'deliveredAt' => $now->toIso8601String(),
+            'items' => $delivered,
+        ];
     }
 
     public function deleteItem(string $type, string $id): void
@@ -280,14 +313,7 @@ class RoadmapService
 
         $item = $this->findItem($type, $data['id']);
         if ($item) {
-            $item->fill([
-                'product_id' => $data['product_id'],
-                'priority' => $data['priority'],
-                'title' => $data['title'],
-                'notes' => $data['notes'],
-                'metrics' => $data['metrics'],
-                'dev_status' => $data['dev_status'],
-            ]);
+            $item->fill($this->itemAttributesFromData($data, true));
             $item->save();
 
             return;
@@ -322,17 +348,11 @@ class RoadmapService
 
     private function persistItem(string $type, array $data): RoadmapItem
     {
-        $item = new RoadmapItem([
+        $item = new RoadmapItem(array_merge([
             'roadmap_type' => $type,
             'id' => $data['id'],
-            'product_id' => $data['product_id'],
-            'priority' => $data['priority'],
-            'title' => $data['title'],
-            'notes' => $data['notes'],
-            'metrics' => $data['metrics'],
-            'dev_status' => $data['dev_status'],
             'item_created_at' => $data['item_created_at'],
-        ]);
+        ], $this->itemAttributesFromData($data, true)));
         $item->save();
 
         return $item;
@@ -384,6 +404,17 @@ class RoadmapService
             throw new InvalidArgumentException('Prioridade inválida.');
         }
 
+        $backlogPriority = $input['backlogPriority'] ?? $input['backlog_priority'] ?? null;
+
+        if ($priority === 'backlog') {
+            $backlogPriority = $backlogPriority ?? 'media';
+            if (!in_array($backlogPriority, self::MATRIX_PRIORITIES, true)) {
+                throw new InvalidArgumentException('Prioridade do backlog inválida.');
+            }
+        } else {
+            $backlogPriority = null;
+        }
+
         $productId = (string) ($input['productId'] ?? $input['product_id'] ?? '');
         if ($productId === '') {
             throw new InvalidArgumentException('O módulo do item é obrigatório.');
@@ -400,15 +431,22 @@ class RoadmapService
         }
 
         $createdAt = $input['createdAt'] ?? $input['item_created_at'] ?? null;
+        $deliveredAt = $input['deliveredAt'] ?? $input['delivered_at'] ?? null;
+
+        if ($deliveredAt) {
+            $devStatus = null;
+        }
 
         return [
             'id' => (string) ($input['id'] ?? ('rm-' . now()->timestamp . '-' . substr(bin2hex(random_bytes(3)), 0, 5))),
             'product_id' => $productId,
             'priority' => $priority,
+            'backlog_priority' => $backlogPriority,
             'title' => trim((string) ($input['title'] ?? '')),
             'notes' => trim((string) ($input['notes'] ?? '')),
             'metrics' => array_values($metrics),
             'dev_status' => $devStatus ?: null,
+            'delivered_at' => $deliveredAt ? now()->parse($deliveredAt) : null,
             'item_created_at' => $createdAt ? now()->parse($createdAt) : now(),
         ];
     }
@@ -430,10 +468,11 @@ class RoadmapService
 
     private function itemToArray(RoadmapItem $item): array
     {
-        return [
+        $payload = [
             'id' => $item->id,
             'productId' => $item->product_id,
             'priority' => $item->priority,
+            'backlogPriority' => $item->backlog_priority,
             'title' => $item->title,
             'notes' => $item->notes ?? '',
             'metrics' => $item->metrics ?? [],
@@ -441,6 +480,42 @@ class RoadmapService
             'createdAt' => optional($item->item_created_at)->toIso8601String()
                 ?? optional($item->created_at)->toIso8601String(),
         ];
+
+        if ($this->itemsHaveDeliveredAt()) {
+            $payload['deliveredAt'] = optional($item->delivered_at)->toIso8601String();
+        }
+
+        return $payload;
+    }
+
+    private function itemAttributesFromData(array $data, bool $includeDelivered): array
+    {
+        $attributes = [
+            'product_id' => $data['product_id'],
+            'priority' => $data['priority'],
+            'backlog_priority' => $data['backlog_priority'],
+            'title' => $data['title'],
+            'notes' => $data['notes'],
+            'metrics' => $data['metrics'],
+            'dev_status' => $data['dev_status'],
+        ];
+
+        if ($includeDelivered && $this->itemsHaveDeliveredAt()) {
+            $attributes['delivered_at'] = $data['delivered_at'] ?? null;
+        }
+
+        return $attributes;
+    }
+
+    private function itemsHaveDeliveredAt(): bool
+    {
+        static $hasColumn = null;
+
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('roadmap_items', 'delivered_at');
+        }
+
+        return $hasColumn;
     }
 
     private function productToArray(RoadmapCustomProduct $product): array
