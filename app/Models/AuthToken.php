@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class AuthToken extends Model
+{
+    protected $table = 'auth_tokens';
+
+    protected $fillable = [
+        'user_id',
+        'token',
+        'name',
+        'last_used_at',
+    ];
+
+    protected $hidden = [
+        'token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'last_used_at' => 'datetime',
+        ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
