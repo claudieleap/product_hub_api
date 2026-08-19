@@ -17,4 +17,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('metrics')->group(function () {
         require __DIR__.'/api/v1/metrics.php';
     });
+
+    Route::prefix('establishments')->group(function () {
+        require __DIR__.'/api/v1/establishments.php';
+    });
 });
