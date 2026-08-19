@@ -11,20 +11,12 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
  * Importa a base de credenciados (formato Sulamérica: UF, MUNICIPIO,
  * ESPECIALIDADE, FANTASIA, RAZAO_SOCIAL, CLASSIFICACAO, GRUPO_ECON, CNPJ_CPF,
  * BAIRRO, ENDERECO, NUM_ENDERECO, COMPLEMENTO, CEP, DDD, TELEFONE, EMAIL,
- * DIVULGACAO, NAT_ND, PF_PJ) filtrando pro Vale do Paraíba e agrupando por CNPJ
- * (uma linha por prestador × especialidade na planilha → um estabelecimento com
- * a lista de especialidades). Quem já existe (por CNPJ ou CPF) é pulado.
+ * DIVULGACAO, NAT_ND, PF_PJ) agrupando por CNPJ (uma linha por prestador ×
+ * especialidade na planilha → um estabelecimento com a lista de especialidades).
+ * Quem já existe (por CNPJ ou CPF) é pulado.
  */
 class EstablishmentImportService
 {
-    private const VALE_DO_PARAIBA_CIDADES = [
-        'SAO JOSE DOS CAMPOS', 'TAUBATE', 'JACAREI', 'CRUZEIRO', 'LORENA',
-        'GUARATINGUETA', 'PINDAMONHANGABA', 'CACAPAVA', 'SAO SEBASTIAO',
-        'CAMPOS DO JORDAO', 'CARAGUATATUBA', 'CACHOEIRA PAULISTA', 'ILHABELA',
-        'UBATUBA', 'TREMEMBE', 'SAO BENTO DO SAPUCAI', 'SANTA BRANCA',
-        'APARECIDA', 'CANAS', 'ROSEIRA',
-    ];
-
     public function import(UploadedFile $file): array
     {
         // Planilhas de credenciados chegam a ~1M linhas — o reader padrão do
@@ -49,10 +41,6 @@ class EstablishmentImportService
             [$uf, $municipio, $especialidade, $fantasia, $razaoSocial, $classificacao,
                 $grupoEcon, $cnpjCpf, $bairro, $endereco, $numEndereco, $complemento,
                 $cep, $ddd, $telefone, $email, $divulgacao, $natNd, $pfPj] = array_pad($cells, 19, '');
-
-            if (! $this->normalize($municipio) || ! in_array($this->normalize($municipio), self::VALE_DO_PARAIBA_CIDADES, true)) {
-                continue;
-            }
 
             $cnpjCpf = preg_replace('/\D/', '', $cnpjCpf);
             if ($cnpjCpf === '') {
@@ -149,20 +137,5 @@ class EstablishmentImportService
             'skipped' => $skipped,
             'total' => count($providers),
         ];
-    }
-
-    private function normalize(string $value): string
-    {
-        $value = strtoupper($value);
-        $value = strtr($value, [
-            'Á' => 'A', 'À' => 'A', 'Ã' => 'A', 'Â' => 'A',
-            'É' => 'E', 'Ê' => 'E',
-            'Í' => 'I',
-            'Ó' => 'O', 'Õ' => 'O', 'Ô' => 'O',
-            'Ú' => 'U',
-            'Ç' => 'C',
-        ]);
-
-        return trim($value);
     }
 }
