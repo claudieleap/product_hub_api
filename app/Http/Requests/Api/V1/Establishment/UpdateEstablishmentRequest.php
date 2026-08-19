@@ -7,8 +7,10 @@ class UpdateEstablishmentRequest extends EstablishmentRequest
     public function rules(): array
     {
         return [
-            'cnpjCpf' => 'sometimes|nullable|string|max:20',
+            'cnpj' => 'sometimes|nullable|string|max:20',
+            'cpf' => 'sometimes|nullable|string|max:20',
             'fantasia' => 'sometimes|nullable|string|max:255',
+            'contactName' => 'sometimes|nullable|string|max:255',
             'razaoSocial' => 'sometimes|nullable|string|max:255',
             'kind' => 'sometimes|in:clinica,hospital',
             'projects' => 'sometimes|array',
@@ -27,7 +29,6 @@ class UpdateEstablishmentRequest extends EstablishmentRequest
             'ddd' => 'sometimes|nullable|string|max:5',
             'telefone' => 'sometimes|nullable|string|max:30',
             'email' => 'sometimes|nullable|string|max:255',
-            'divulgacao' => 'sometimes|nullable|in:DIVULGADO,NAO DIVULGADO',
             'natNd' => 'sometimes|nullable|in:-,NAT ND',
             'pfPj' => 'sometimes|nullable|in:F,J',
             'stageId' => 'sometimes|nullable|in:inbox,qualificado,fremium_aceito,proposta_apresentada,onboardado_fremium,levantada_mao',

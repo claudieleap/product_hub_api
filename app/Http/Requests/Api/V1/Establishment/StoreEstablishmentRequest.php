@@ -8,8 +8,11 @@ class StoreEstablishmentRequest extends EstablishmentRequest
     {
         return [
             'id' => 'sometimes|string|max:40',
-            'cnpjCpf' => 'sometimes|nullable|string|max:20',
-            'fantasia' => 'required|string|max:255',
+            'cnpj' => 'sometimes|nullable|string|max:20',
+            'cpf' => 'sometimes|nullable|string|max:20',
+            'fantasia' => 'sometimes|nullable|string|max:255',
+            'razaoSocial' => 'required|string|max:255',
+            'contactName' => 'sometimes|nullable|string|max:255',
             'kind' => 'sometimes|in:clinica,hospital',
             'projects' => 'sometimes|array',
             'projects.*' => 'in:saas,bpo',

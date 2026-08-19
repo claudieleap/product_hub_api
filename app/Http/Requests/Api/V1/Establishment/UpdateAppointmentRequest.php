@@ -2,14 +2,14 @@
 
 namespace App\Http\Requests\Api\V1\Establishment;
 
-class StoreAppointmentRequest extends EstablishmentRequest
+class UpdateAppointmentRequest extends EstablishmentRequest
 {
     public function rules(): array
     {
         return [
-            'date' => 'required|date_format:Y-m-d',
-            'time' => 'required|date_format:H:i',
-            'modality' => 'required|in:presencial,online',
+            'date' => 'sometimes|date_format:Y-m-d',
+            'time' => 'sometimes|date_format:H:i',
+            'modality' => 'sometimes|in:presencial,online',
             'location' => 'sometimes|nullable|string|max:255',
             'paymentLink' => 'sometimes|nullable|string|max:500',
             'responsavelIds' => 'sometimes|array',

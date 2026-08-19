@@ -15,8 +15,10 @@ class Establishment extends Model
 
     protected $fillable = [
         'id',
-        'cnpj_cpf',
+        'cnpj',
+        'cpf',
         'fantasia',
+        'contact_name',
         'razao_social',
         'kind',
         'projects',
@@ -33,7 +35,6 @@ class Establishment extends Model
         'ddd',
         'telefone',
         'email',
-        'divulgacao',
         'nat_nd',
         'pf_pj',
         'stage_id',

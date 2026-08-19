@@ -11,11 +11,12 @@ class EstablishmentAppointment extends Model
 
     protected $fillable = [
         'establishment_id', 'date', 'time', 'modality', 'location', 'payment_link',
-        'responsavel_id', 'created_by_user_id', 'notes',
+        'responsavel_ids', 'created_by_user_id', 'notes',
     ];
 
     protected $casts = [
         'date' => 'date:Y-m-d',
+        'responsavel_ids' => 'array',
     ];
 
     public function establishment(): BelongsTo

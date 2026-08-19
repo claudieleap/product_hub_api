@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Establishment\StoreAppointmentRequest;
+use App\Http\Requests\Api\V1\Establishment\UpdateAppointmentRequest;
 use App\Services\EstablishmentAppointmentService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -33,6 +34,14 @@ class EstablishmentAppointmentController extends Controller
         return $this->handle(fn () => ApiResponse::created(
             $this->appointmentService->create($establishmentId, $request->user(), $request->validated()),
             'Agendamento criado com sucesso',
+        ));
+    }
+
+    public function update(UpdateAppointmentRequest $request, string $establishmentId, string $appointmentId): JsonResponse
+    {
+        return $this->handle(fn () => ApiResponse::success(
+            $this->appointmentService->update($establishmentId, $appointmentId, $request->validated()),
+            'Agendamento atualizado com sucesso',
         ));
     }
 

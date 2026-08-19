@@ -35,7 +35,8 @@ class EstablishmentAppointmentService
                 'establishment_appointments.modality',
                 'establishment_appointments.location',
                 'establishment_appointments.payment_link',
-                'establishment_appointments.responsavel_id',
+                'establishment_appointments.responsavel_ids',
+                'establishment_appointments.notes',
                 'establishments.fantasia',
                 'establishments.razao_social',
             ])
@@ -48,7 +49,8 @@ class EstablishmentAppointmentService
                 'modality' => $row->modality,
                 'location' => $row->location,
                 'paymentLink' => $row->payment_link,
-                'responsavelId' => $row->responsavel_id,
+                'responsavelIds' => $row->responsavel_ids ?? [],
+                'notes' => $row->notes,
             ])
             ->all();
     }
@@ -68,7 +70,7 @@ class EstablishmentAppointmentService
                 'modality' => $input['modality'],
                 'location' => $input['location'] ?? null,
                 'payment_link' => $input['paymentLink'] ?? null,
-                'responsavel_id' => $input['responsavelId'] ?? null,
+                'responsavel_ids' => $input['responsavelIds'] ?? [],
                 'created_by_user_id' => $user->id,
                 'notes' => $input['notes'] ?? null,
             ]);
@@ -83,10 +85,52 @@ class EstablishmentAppointmentService
                 'modality' => $appointment->modality,
                 'location' => $appointment->location,
                 'paymentLink' => $appointment->payment_link,
-                'responsavelId' => $appointment->responsavel_id,
+                'responsavelIds' => $appointment->responsavel_ids ?? [],
+                'notes' => $appointment->notes,
                 'stageId' => $establishment->stage_id,
             ];
         });
+    }
+
+    public function update(string $establishmentId, string $appointmentId, array $input): array
+    {
+        $appointment = ctype_digit($appointmentId)
+            ? EstablishmentAppointment::where('establishment_id', $establishmentId)->find((int) $appointmentId)
+            : null;
+
+        if (! $appointment) {
+            throw new NotFoundException('Agendamento', $appointmentId);
+        }
+
+        $map = [
+            'date' => 'date',
+            'time' => 'time',
+            'modality' => 'modality',
+            'location' => 'location',
+            'paymentLink' => 'payment_link',
+            'responsavelIds' => 'responsavel_ids',
+            'notes' => 'notes',
+        ];
+
+        foreach ($map as $inputKey => $column) {
+            if (array_key_exists($inputKey, $input)) {
+                $appointment->{$column} = $input[$inputKey];
+            }
+        }
+
+        $appointment->save();
+
+        return [
+            'id' => $appointment->id,
+            'establishmentId' => $appointment->establishment_id,
+            'date' => $appointment->date->format('Y-m-d'),
+            'time' => $appointment->time,
+            'modality' => $appointment->modality,
+            'location' => $appointment->location,
+            'paymentLink' => $appointment->payment_link,
+            'responsavelIds' => $appointment->responsavel_ids ?? [],
+            'notes' => $appointment->notes,
+        ];
     }
 
     private function maybeAdvanceStage(Establishment $establishment): void

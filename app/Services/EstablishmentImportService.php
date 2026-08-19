@@ -13,7 +13,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
  * BAIRRO, ENDERECO, NUM_ENDERECO, COMPLEMENTO, CEP, DDD, TELEFONE, EMAIL,
  * DIVULGACAO, NAT_ND, PF_PJ) filtrando pro Vale do Paraíba e agrupando por CNPJ
  * (uma linha por prestador × especialidade na planilha → um estabelecimento com
- * a lista de especialidades). Quem já existe (por cnpj_cpf) é pulado.
+ * a lista de especialidades). Quem já existe (por CNPJ ou CPF) é pulado.
  */
 class EstablishmentImportService
 {
@@ -61,7 +61,6 @@ class EstablishmentImportService
 
             if (! isset($providers[$cnpjCpf])) {
                 $providers[$cnpjCpf] = [
-                    'cnpj_cpf' => $cnpjCpf,
                     'fantasia' => $fantasia,
                     'razao_social' => $razaoSocial,
                     'classificacao' => $classificacao,
@@ -76,7 +75,6 @@ class EstablishmentImportService
                     'ddd' => $ddd,
                     'telefone' => $telefone,
                     'email' => $email,
-                    'divulgacao' => $divulgacao,
                     'nat_nd' => $natNd,
                     'pf_pj' => $pfPj,
                     'especialidades' => [],
@@ -91,8 +89,10 @@ class EstablishmentImportService
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet, $sheet);
 
-        $existing = Establishment::whereIn('cnpj_cpf', array_keys($providers))
-            ->pluck('cnpj_cpf')
+        $keys = array_keys($providers);
+        $existing = Establishment::where(fn ($q) => $q->whereIn('cnpj', $keys)->orWhereIn('cpf', $keys))
+            ->get(['cnpj', 'cpf'])
+            ->flatMap(fn ($e) => array_filter([$e->cnpj, $e->cpf]))
             ->all();
         $existing = array_flip($existing);
 
@@ -106,9 +106,12 @@ class EstablishmentImportService
                 continue;
             }
 
+            $isPessoaFisica = $provider['pf_pj'] === 'F';
+
             $rows[] = [
                 'id' => $cnpj,
-                'cnpj_cpf' => $cnpj,
+                'cnpj' => $isPessoaFisica ? null : $cnpj,
+                'cpf' => $isPessoaFisica ? $cnpj : null,
                 'fantasia' => $provider['fantasia'],
                 'razao_social' => $provider['razao_social'],
                 'kind' => str_contains($provider['classificacao'], 'HOSPITAL') ? 'hospital' : 'clinica',
@@ -126,7 +129,6 @@ class EstablishmentImportService
                 'ddd' => $provider['ddd'],
                 'telefone' => $provider['telefone'],
                 'email' => $provider['email'],
-                'divulgacao' => $provider['divulgacao'],
                 'nat_nd' => $provider['nat_nd'],
                 'pf_pj' => $provider['pf_pj'],
                 'stage_id' => 'inbox',

@@ -12,8 +12,10 @@ use Illuminate\Support\Str;
 class EstablishmentService
 {
     private const FIELD_MAP = [
-        'cnpjCpf' => 'cnpj_cpf',
+        'cnpj' => 'cnpj',
+        'cpf' => 'cpf',
         'fantasia' => 'fantasia',
+        'contactName' => 'contact_name',
         'razaoSocial' => 'razao_social',
         'kind' => 'kind',
         'projects' => 'projects',
@@ -30,7 +32,6 @@ class EstablishmentService
         'ddd' => 'ddd',
         'telefone' => 'telefone',
         'email' => 'email',
-        'divulgacao' => 'divulgacao',
         'natNd' => 'nat_nd',
         'pfPj' => 'pf_pj',
         'stageId' => 'stage_id',
@@ -66,7 +67,7 @@ class EstablishmentService
 
     public function create(array $input): array
     {
-        $id = $input['id'] ?? $input['cnpjCpf'] ?? ('est-'.Str::random(12));
+        $id = $input['id'] ?? $input['cnpj'] ?? $input['cpf'] ?? ('est-'.Str::random(12));
 
         $establishment = new Establishment(['id' => $id]);
 
@@ -160,14 +161,14 @@ class EstablishmentService
         ];
     }
 
-    /** @return array<string, array{date: string, time: string, responsavelId: ?string}>> */
+    /** @return array<string, array{date: string, time: string, responsavelIds: array<int, string>}>> */
     private function nextAppointmentsByEstablishment(): array
     {
         $rows = DB::table('establishment_appointments')
             ->whereDate('date', '>=', now()->toDateString())
             ->orderBy('date')
             ->orderBy('time')
-            ->get(['establishment_id', 'date', 'time', 'responsavel_id']);
+            ->get(['establishment_id', 'date', 'time', 'responsavel_ids']);
 
         $result = [];
         foreach ($rows as $row) {
@@ -177,7 +178,7 @@ class EstablishmentService
             $result[$row->establishment_id] = [
                 'date' => $row->date,
                 'time' => $row->time,
-                'responsavelId' => $row->responsavel_id,
+                'responsavelIds' => $row->responsavel_ids ? json_decode($row->responsavel_ids, true) : [],
             ];
         }
 
@@ -188,8 +189,10 @@ class EstablishmentService
     {
         return [
             'id' => $establishment->id,
-            'cnpjCpf' => $establishment->cnpj_cpf,
+            'cnpj' => $establishment->cnpj,
+            'cpf' => $establishment->cpf,
             'fantasia' => $establishment->fantasia,
+            'contactName' => $establishment->contact_name,
             'razaoSocial' => $establishment->razao_social,
             'kind' => $establishment->kind,
             'projects' => $establishment->projects ?? [],
@@ -206,7 +209,6 @@ class EstablishmentService
             'ddd' => $establishment->ddd,
             'telefone' => $establishment->telefone,
             'email' => $establishment->email,
-            'divulgacao' => $establishment->divulgacao,
             'natNd' => $establishment->nat_nd,
             'pfPj' => $establishment->pf_pj,
             'stageId' => $establishment->stage_id,
@@ -215,6 +217,7 @@ class EstablishmentService
             'onboardingOrderIndex' => $establishment->onboarding_order_index,
             'onboardingResponsavelId' => $establishment->onboarding_responsavel_id,
             'observacao' => $establishment->observacao,
+            'updatedAt' => $establishment->updated_at?->toIso8601String(),
             'nextAppointment' => $nextAppointment ?? ($this->nextAppointmentsByEstablishment()[$establishment->id] ?? null),
         ];
     }
