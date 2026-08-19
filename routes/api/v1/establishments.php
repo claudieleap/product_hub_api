@@ -31,9 +31,11 @@ Route::delete('/{id}', [EstablishmentController::class, 'destroy']);
 Route::middleware('auth.token')->group(function () {
     Route::get('/{id}/comments', [EstablishmentCommentController::class, 'index']);
     Route::post('/{id}/comments', [EstablishmentCommentController::class, 'store']);
+    Route::get('/{id}/appointments', [EstablishmentAppointmentController::class, 'forEstablishment']);
     Route::post('/{id}/appointments', [EstablishmentAppointmentController::class, 'store']);
     Route::put('/{establishmentId}/appointments/{appointmentId}', [EstablishmentAppointmentController::class, 'update']);
     Route::patch('/{establishmentId}/appointments/{appointmentId}', [EstablishmentAppointmentController::class, 'update']);
+    Route::delete('/{establishmentId}/appointments/{appointmentId}', [EstablishmentAppointmentController::class, 'destroy']);
 });
 
 Route::post('/{establishmentId}/units', [EstablishmentMatrixController::class, 'storeUnit']);

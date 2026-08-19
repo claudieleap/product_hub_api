@@ -29,6 +29,14 @@ class EstablishmentAppointmentController extends Controller
         ));
     }
 
+    public function forEstablishment(string $establishmentId): JsonResponse
+    {
+        return $this->handle(fn () => ApiResponse::success(
+            $this->appointmentService->listForEstablishment($establishmentId),
+            'Agendamentos carregados com sucesso',
+        ));
+    }
+
     public function store(StoreAppointmentRequest $request, string $establishmentId): JsonResponse
     {
         return $this->handle(fn () => ApiResponse::created(
@@ -43,6 +51,15 @@ class EstablishmentAppointmentController extends Controller
             $this->appointmentService->update($establishmentId, $appointmentId, $request->validated()),
             'Agendamento atualizado com sucesso',
         ));
+    }
+
+    public function destroy(Request $request, string $establishmentId, string $appointmentId): JsonResponse
+    {
+        return $this->handle(function () use ($establishmentId, $appointmentId) {
+            $this->appointmentService->delete($establishmentId, $appointmentId);
+
+            return ApiResponse::success(null, 'Agendamento excluído com sucesso');
+        });
     }
 
     private function handle(callable $callback): JsonResponse

@@ -2,10 +2,13 @@
 # Build determinístico, sem etapa de npm/vite (a API não serve assets compilados).
 FROM php:8.4-cli-alpine
 
-# Extensões PHP exigidas pelo Laravel 12 + drivers sqlite (local/testes) e pgsql (Railway)
+# Extensões PHP exigidas pelo Laravel 12 + drivers sqlite (local/testes), pgsql (Railway)
+# e gd (phpoffice/phpspreadsheet, usado na importação de planilhas)
 RUN apk add --no-cache \
         git unzip libzip-dev icu-dev oniguruma-dev sqlite sqlite-dev postgresql-dev \
-    && docker-php-ext-install pdo pdo_sqlite pdo_pgsql mbstring zip bcmath pcntl intl
+        libpng-dev libjpeg-turbo-dev freetype-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_sqlite pdo_pgsql mbstring zip bcmath pcntl intl gd
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
