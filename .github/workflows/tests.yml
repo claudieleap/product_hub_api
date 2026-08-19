@@ -3,8 +3,7 @@ name: Tests
 on:
   push:
     branches:
-      - master
-      - '*.x'
+      - staging
   pull_request:
   schedule:
     - cron: '0 0 * * *'
@@ -19,7 +18,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2, 8.3, 8.4]
+        # composer.lock resolve symfony/* 8.1 (>= 8.4.1) e o Dockerfile roda php:8.4-cli-alpine.
+        # Manter 8.2/8.3 aqui só quebra o composer install; a app nunca roda nessas versoes.
+        php: [8.4]
 
     name: PHP ${{ matrix.php }}
 

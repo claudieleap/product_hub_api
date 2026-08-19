@@ -2,8 +2,9 @@
 # Build determinístico, sem etapa de npm/vite (a API não serve assets compilados).
 FROM php:8.4-cli-alpine
 
-# Extensões PHP exigidas pelo Laravel 12 + drivers sqlite (local/testes), pgsql (Railway)
-# e gd (phpoffice/phpspreadsheet, usado na importação de planilhas)
+# Extensões PHP exigidas pelo Laravel 12 + drivers sqlite (local/testes) e pgsql (Railway).
+# gd é requisito de phpoffice/phpspreadsheet (EstablishmentImportService) — sem ele o
+# composer install aborta com "ext-gd is missing from your system".
 RUN apk add --no-cache \
         git unzip libzip-dev icu-dev oniguruma-dev sqlite sqlite-dev postgresql-dev \
         libpng-dev libjpeg-turbo-dev freetype-dev \
