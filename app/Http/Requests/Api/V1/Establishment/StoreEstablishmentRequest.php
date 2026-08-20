@@ -16,7 +16,7 @@ class StoreEstablishmentRequest extends EstablishmentRequest
             'kind' => 'sometimes|in:clinica,hospital',
             'projects' => 'sometimes|array',
             'projects.*' => 'in:saas,bpo',
-            'stageId' => 'sometimes|nullable|in:inbox,qualificado,fremium_aceito,proposta_apresentada,onboardado_fremium,levantada_mao',
+            'stageId' => 'sometimes|nullable|in:inbox,qualificado,fremium_aceito,proposta_apresentada,onboardado_fremium,concluido,levantada_mao',
             'orderIndex' => 'sometimes|integer|min:0',
             'onboardingPhaseId' => 'sometimes|nullable|string|max:40',
             'onboardingOrderIndex' => 'sometimes|integer|min:0',

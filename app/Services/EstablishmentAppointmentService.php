@@ -15,7 +15,7 @@ class EstablishmentAppointmentService
      * "avança" o estágio (nunca recua um estágio já mais adiantado).
      */
     private const STAGE_ORDER = [
-        'inbox', 'qualificado', 'fremium_aceito', 'proposta_apresentada', 'onboardado_fremium', 'levantada_mao',
+        'inbox', 'qualificado', 'fremium_aceito', 'proposta_apresentada', 'onboardado_fremium', 'concluido', 'levantada_mao',
     ];
 
     private const MEETING_STAGE = 'fremium_aceito';
@@ -51,6 +51,27 @@ class EstablishmentAppointmentService
                 'paymentLink' => $row->payment_link,
                 'responsavelIds' => $row->responsavel_ids ?? [],
                 'notes' => $row->notes,
+            ])
+            ->all();
+    }
+
+    public function listForEstablishment(string $establishmentId): array
+    {
+        return EstablishmentAppointment::query()
+            ->where('establishment_id', $establishmentId)
+            ->orderByDesc('date')
+            ->orderByDesc('time')
+            ->get()
+            ->map(fn ($appointment) => [
+                'id' => $appointment->id,
+                'establishmentId' => $appointment->establishment_id,
+                'date' => $appointment->date->format('Y-m-d'),
+                'time' => $appointment->time,
+                'modality' => $appointment->modality,
+                'location' => $appointment->location,
+                'paymentLink' => $appointment->payment_link,
+                'responsavelIds' => $appointment->responsavel_ids ?? [],
+                'notes' => $appointment->notes,
             ])
             ->all();
     }
@@ -131,6 +152,19 @@ class EstablishmentAppointmentService
             'responsavelIds' => $appointment->responsavel_ids ?? [],
             'notes' => $appointment->notes,
         ];
+    }
+
+    public function delete(string $establishmentId, string $appointmentId): void
+    {
+        $appointment = ctype_digit($appointmentId)
+            ? EstablishmentAppointment::where('establishment_id', $establishmentId)->find((int) $appointmentId)
+            : null;
+
+        if (! $appointment) {
+            throw new NotFoundException('Agendamento', $appointmentId);
+        }
+
+        $appointment->delete();
     }
 
     private function maybeAdvanceStage(Establishment $establishment): void

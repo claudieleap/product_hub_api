@@ -12,6 +12,8 @@ use App\Services\EstablishmentService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class EstablishmentController extends Controller
@@ -68,6 +70,17 @@ class EstablishmentController extends Controller
             $this->establishmentImportService->import($request->file('file')),
             'Importação concluída',
         ));
+    }
+
+    public function downloadTemplate(): StreamedResponse
+    {
+        $writer = new Xlsx($this->establishmentImportService->buildTemplate());
+
+        return response()->streamDownload(
+            fn () => $writer->save('php://output'),
+            'modelo-importacao-estabelecimentos.xlsx',
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        );
     }
 
     private function handle(callable $callback): JsonResponse

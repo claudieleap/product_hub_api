@@ -6,24 +6,37 @@ use App\Models\Establishment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 /**
  * Importa a base de credenciados (formato Sulamérica: UF, MUNICIPIO,
  * ESPECIALIDADE, FANTASIA, RAZAO_SOCIAL, CLASSIFICACAO, GRUPO_ECON, CNPJ_CPF,
  * BAIRRO, ENDERECO, NUM_ENDERECO, COMPLEMENTO, CEP, DDD, TELEFONE, EMAIL,
- * DIVULGACAO, NAT_ND, PF_PJ) filtrando pro Vale do Paraíba e agrupando por CNPJ
- * (uma linha por prestador × especialidade na planilha → um estabelecimento com
- * a lista de especialidades). Quem já existe (por CNPJ ou CPF) é pulado.
+ * DIVULGACAO, NAT_ND, PF_PJ) agrupando por CNPJ (uma linha por prestador ×
+ * especialidade na planilha → um estabelecimento com a lista de especialidades).
+ * Quem já existe (por CNPJ ou CPF) é pulado.
  */
 class EstablishmentImportService
 {
-    private const VALE_DO_PARAIBA_CIDADES = [
-        'SAO JOSE DOS CAMPOS', 'TAUBATE', 'JACAREI', 'CRUZEIRO', 'LORENA',
-        'GUARATINGUETA', 'PINDAMONHANGABA', 'CACAPAVA', 'SAO SEBASTIAO',
-        'CAMPOS DO JORDAO', 'CARAGUATATUBA', 'CACHOEIRA PAULISTA', 'ILHABELA',
-        'UBATUBA', 'TREMEMBE', 'SAO BENTO DO SAPUCAI', 'SANTA BRANCA',
-        'APARECIDA', 'CANAS', 'ROSEIRA',
+    private const TEMPLATE_HEADERS = [
+        'UF', 'MUNICIPIO', 'ESPECIALIDADE', 'FANTASIA', 'RAZAO_SOCIAL', 'CLASSIFICACAO',
+        'GRUPO_ECON', 'CNPJ_CPF', 'BAIRRO', 'ENDERECO', 'NUM_ENDERECO', 'COMPLEMENTO',
+        'CEP', 'DDD', 'TELEFONE', 'EMAIL', 'DIVULGACAO', 'NAT_ND', 'PF_PJ',
     ];
+
+    /** Planilha vazia (só o cabeçalho) no formato que o import espera. */
+    public function buildTemplate(): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->fromArray(self::TEMPLATE_HEADERS, null, 'A1');
+
+        foreach (range('A', 'S') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        return $spreadsheet;
+    }
 
     public function import(UploadedFile $file): array
     {
@@ -49,10 +62,6 @@ class EstablishmentImportService
             [$uf, $municipio, $especialidade, $fantasia, $razaoSocial, $classificacao,
                 $grupoEcon, $cnpjCpf, $bairro, $endereco, $numEndereco, $complemento,
                 $cep, $ddd, $telefone, $email, $divulgacao, $natNd, $pfPj] = array_pad($cells, 19, '');
-
-            if (! $this->normalize($municipio) || ! in_array($this->normalize($municipio), self::VALE_DO_PARAIBA_CIDADES, true)) {
-                continue;
-            }
 
             $cnpjCpf = preg_replace('/\D/', '', $cnpjCpf);
             if ($cnpjCpf === '') {
@@ -149,20 +158,5 @@ class EstablishmentImportService
             'skipped' => $skipped,
             'total' => count($providers),
         ];
-    }
-
-    private function normalize(string $value): string
-    {
-        $value = strtoupper($value);
-        $value = strtr($value, [
-            'Á' => 'A', 'À' => 'A', 'Ã' => 'A', 'Â' => 'A',
-            'É' => 'E', 'Ê' => 'E',
-            'Í' => 'I',
-            'Ó' => 'O', 'Õ' => 'O', 'Ô' => 'O',
-            'Ú' => 'U',
-            'Ç' => 'C',
-        ]);
-
-        return trim($value);
     }
 }
