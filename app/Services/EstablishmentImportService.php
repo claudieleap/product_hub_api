@@ -6,6 +6,7 @@ use App\Models\Establishment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 /**
  * Importa a base de credenciados (formato Sulamérica: UF, MUNICIPIO,
@@ -17,6 +18,26 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
  */
 class EstablishmentImportService
 {
+    private const TEMPLATE_HEADERS = [
+        'UF', 'MUNICIPIO', 'ESPECIALIDADE', 'FANTASIA', 'RAZAO_SOCIAL', 'CLASSIFICACAO',
+        'GRUPO_ECON', 'CNPJ_CPF', 'BAIRRO', 'ENDERECO', 'NUM_ENDERECO', 'COMPLEMENTO',
+        'CEP', 'DDD', 'TELEFONE', 'EMAIL', 'DIVULGACAO', 'NAT_ND', 'PF_PJ',
+    ];
+
+    /** Planilha vazia (só o cabeçalho) no formato que o import espera. */
+    public function buildTemplate(): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->fromArray(self::TEMPLATE_HEADERS, null, 'A1');
+
+        foreach (range('A', 'S') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        return $spreadsheet;
+    }
+
     public function import(UploadedFile $file): array
     {
         // Planilhas de credenciados chegam a ~1M linhas — o reader padrão do

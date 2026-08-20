@@ -12,6 +12,7 @@ Route::post('/', [EstablishmentController::class, 'store']);
 Route::get('/appointments', [EstablishmentAppointmentController::class, 'index']);
 
 Route::middleware(['auth.token', 'admin'])->group(function () {
+    Route::get('/import-template', [EstablishmentController::class, 'downloadTemplate']);
     Route::post('/import', [EstablishmentController::class, 'import']);
 });
 

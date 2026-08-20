@@ -15,7 +15,7 @@ class EstablishmentAppointmentService
      * "avança" o estágio (nunca recua um estágio já mais adiantado).
      */
     private const STAGE_ORDER = [
-        'inbox', 'qualificado', 'fremium_aceito', 'proposta_apresentada', 'onboardado_fremium', 'levantada_mao',
+        'inbox', 'qualificado', 'fremium_aceito', 'proposta_apresentada', 'onboardado_fremium', 'concluido', 'levantada_mao',
     ];
 
     private const MEETING_STAGE = 'fremium_aceito';
